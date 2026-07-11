@@ -1,50 +1,105 @@
-# Cafe24 Initial Store Setup Skill
+# Cafe24 초기 자사몰 설정 스킬
 
-A Hermes Agent skill for preparing a Korean Cafe24 self-hosted store before PG approval.
+Cafe24 자사몰을 처음 세팅할 때, **사업자 정보 → 고객센터·푸터 → 표준 약관 → 샘플 상품 → 결제·PG 승인 전 점검** 흐름을 안전하게 진행하도록 돕는 Hermes Agent 스킬입니다.
 
-## What it covers
+> 이 스킬은 Cafe24 가입·쇼핑몰 개설·로그인·OTP·본인인증·PG 계약을 대신하지 않습니다. 사용자가 해당 절차를 직접 완료한 뒤, 제공한 실제 정보만 입력·검증합니다.
 
-- Business, footer, customer-service, and privacy-manager information
-- Company introduction and mobile service inquiry guidance
-- Existing Cafe24 standard terms: company/store-name substitution checks
-- Bank-transfer display consistency checks
-- Public footer verification and PG-preapproval readiness checklist
+## 이런 경우에 사용하세요
 
-The user performs login, MFA/OTP, identity verification, PG application, contracts, and document submission. The skill never invents business details, account details, or legal-policy content.
+- Cafe24에 기본 가입과 쇼핑몰 개설을 마친 뒤 초기 설정을 하고 싶을 때
+- 사업자·고객센터 정보가 실제 푸터에 제대로 표시되는지 확인하고 싶을 때
+- 기존 Cafe24 표준 이용약관에 상호·쇼핑몰명이 올바르게 반영됐는지 점검하고 싶을 때
+- 실제 정보와 이미지가 준비된 샘플 상품을 최대 2개 등록하고 싶을 때
+- PG 신청 전에 상품·배송·정책·결제정보의 누락 항목을 점검하고 싶을 때
 
-## Install
+## 시작 전 준비
 
-Copy the skill directory into your Hermes skills directory:
+1. Cafe24 회원가입과 쇼핑몰 개설을 완료합니다.
+2. 대상 쇼핑몰의 관리자 URL 또는 상점 ID를 준비합니다.
+3. 로그인과 OTP는 사용자가 직접 완료합니다.
+4. 아래의 실제 정보를 준비합니다.
+
+### 필수 정보
+
+- 쇼핑몰명, 상호, 대표자명
+- 사업자등록번호, 업태·종목, 사업장 주소, 대표 전화
+- 고객센터 전화·이메일, 실제 상담 운영시간
+- 통신판매업 신고번호, 개인정보보호책임자 정보
+- 회사소개와 서비스 문의 안내 문구
+
+### 샘플 상품을 등록하는 경우
+
+상품별로 실제 상품명, 카테고리, 판매가, 재고, 옵션, 대표·상세 이미지, 상세설명, 배송비, 출고지, 교환·반품 기준을 준비합니다.
+
+제공되지 않은 가격·이미지·재고·계좌·사업자 정보는 임의로 만들거나 공개하지 않습니다.
+
+## 스킬 실행 흐름
+
+1. 대상 상점 URL·상점 ID·쇼핑몰명을 먼저 대조합니다.
+2. 현재 Cafe24 설정값을 읽고, 사용자 제공값과 차이를 확인합니다.
+3. 사업자 정보, 고객센터, 개인정보보호책임자, 회사소개, 모바일 서비스 문의를 입력하고 저장합니다.
+4. 저장 뒤 새로고침하여 실제로 값이 유지되는지 다시 확인합니다.
+5. 기존 Cafe24 표준 약관의 상호·쇼핑몰명 치환과 이전 브랜드 문구를 점검합니다.
+6. 실제 정보가 준비된 경우 샘플 상품을 최대 2개 등록하고, 공개 상품 상세 페이지에서 판매가·이미지·상세·배송 조건을 확인합니다.
+7. 무통장 결제를 제공한다면 관리자 설정·주문서·푸터의 계좌정보가 같은지 확인합니다.
+8. 공개 쇼핑몰의 PC·모바일 푸터, 정책 링크, 상품 상세 페이지를 점검해 PG 승인 전 보완 항목을 보고합니다.
+
+## 설치
 
 ```bash
 mkdir -p ~/.hermes/skills/ecommerce
 cp -R skills/ecommerce/cafe24-initial-store-setup ~/.hermes/skills/ecommerce/
 ```
 
-Restart Hermes or start a new session, then load it with:
+Hermes를 새로 시작한 뒤 아래처럼 불러옵니다.
 
 ```text
 /skill cafe24-initial-store-setup
 ```
 
-## Browser fallback
+## 처음 요청하는 방법
 
-The skill uses an available interactive browser path in this order:
+Hermes에게 아래처럼 자연어로 요청하면 됩니다.
 
-1. Existing Browser Harness / Chrome CDP
-2. Hermes browser tool
-3. Desktop browser with computer-use
-4. Official Microsoft Playwright MCP installation and smoke test
-5. Manual field-by-field guidance if no visible user-login browser is available
+```text
+Cafe24 초기 자사몰 설정 스킬로 진행해줘.
+Cafe24 가입과 쇼핑몰 개설은 끝냈고, 로그인 후 대상 상점 ID를 먼저 확인해줘.
+사업자·고객센터 정보를 입력한 뒤, 실제 정보가 준비된 샘플 상품 2개까지 등록하고 공개 화면을 점검해줘.
+```
 
-## Verification
+## 브라우저 실행 방식
+
+스킬은 가능한 환경을 아래 순서로 사용합니다.
+
+1. Browser Harness / Windows Chrome CDP
+2. Hermes browser 도구
+3. 데스크톱 브라우저 + computer-use
+4. 공식 Microsoft Playwright MCP 설치·검증
+5. 로그인 가능한 브라우저 화면이 없으면 수동 입력 가이드
+
+## 안전 기준
+
+- 로그인, OTP, 본인인증, PG 신청·계약, 서류 제출은 사용자가 직접 합니다.
+- 사업자 증빙과 다른 정보, 실제 근거가 없는 상품 정보는 입력하지 않습니다.
+- 약관 전체를 임의로 새로 쓰지 않고, 기존 Cafe24 표준 양식의 상호·쇼핑몰명 반영 여부를 점검합니다.
+- PG 신청 버튼은 사용자의 별도 명시 요청 없이는 누르지 않습니다.
+
+## 이브레인 공식 채널 · 문의
+
+- [이브레인 AI·AX 교육·컨설팅](https://ebrain-ai-instructor-site.vercel.app/)
+- [이브레인 링크 모음](https://litt.ly/ai_ebrain)
+- [교육·컨설팅 카카오톡 문의](http://pf.kakao.com/_DIiBn)
+- [유튜브 @aiebrain](https://youtube.com/@aiebrain)
+- [네이버 블로그](https://blog.naver.com/aiebrain)
+- [네이버 카페 AI커머스](https://cafe.naver.com/aicommerce)
+- [Threads @ai_ebrain](https://www.threads.com/@ai_ebrain)
+- [AI 커머스 브레인 Cafe24 자사몰](https://aiebrain.cafe24.com/)
+- [AI 직원 OS 챌린지 자료실](https://ai-challenge-materials-hub.vercel.app/)
+
+## 확인
 
 ```bash
 hermes skills list
 ```
 
-Confirm that `cafe24-initial-store-setup` is listed.
-
-## Safety
-
-Saving store configuration requires the user to provide the underlying business information and authorize the change. PG contracts, applications, payments, user login, and identity verification remain user actions.
+목록에 `cafe24-initial-store-setup`이 표시되면 준비가 완료된 것입니다.
